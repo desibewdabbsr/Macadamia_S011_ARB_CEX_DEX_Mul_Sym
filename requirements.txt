@@ -1,0 +1,6 @@
+ccxt==1.57.64
+pandas==1.3.3
+time
+os
+logging
+python-telegram-bot==13.7

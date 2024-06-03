@@ -71,7 +71,7 @@ You can access and manage the Macadamia bot via Telegram Messenger. Follow these
    - Chat with your Telegram bot to receive updates, check status, and manage arbitrage activities.
 
 ## License
-Developed by : Team @macadamia 
+Developed by : Smitajyoyi Adhikari & Team @macadamia 
 Contact- (desibewdabbsr@gmail.com, 
 imperialbluewisky@gmail.com, 
 rumoldmunk@gmail.com)

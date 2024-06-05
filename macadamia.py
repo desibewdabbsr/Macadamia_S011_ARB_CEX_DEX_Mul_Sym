@@ -1,4 +1,3 @@
-# Macadamia.py
 import ccxt
 import time
 import logging
@@ -30,7 +29,9 @@ from exchange_config import (
     XT_API_KEY, 
     XT_SECRET_KEY
 )
-   
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Exchanges fees Configuration
 fees = {
@@ -48,8 +49,7 @@ fees = {
     'xt': {'base': 0, 'quote': 0.001},
 }
 
-
-# Initialize exchanges (replace with your actual API keys)
+# Initialize exchanges with actual API keys
 exchanges = [
     ccxt.binance({'apiKey': BINANCE_API_KEY, 'secret': BINANCE_SECRET_KEY}),
     ccxt.kucoin({'apiKey': KUCOIN_API_KEY, 'secret': KUCOIN_SECRET_KEY}),
@@ -65,7 +65,6 @@ exchanges = [
     ccxt.xt({'apiKey': XT_API_KEY, 'secret': XT_SECRET_KEY}),
 ]
 
-
 # Define the symbols and timeframes
 symbols = ['BTC/USDT', 'ETH/USDT', 'XRP/USDT']
 timeframes = ['1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h']
@@ -73,19 +72,16 @@ timeframes = ['1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h']
 # Initialize the dataframe
 df = pd.DataFrame(columns=['timestamp'] + [f'price{i}' for i in range(1, len(symbols) + 1)])
 
-# Print the dataframe (optional)
-# print(df)
-
 def get_balance(exchange):
     balance = exchange.fetch_balance()
-    return balance['total']['USDT']
+    return balance['total'].get('USDT', 0)
 
-def execute_arbitrage():
+def execute_arbitrage(renew_time_minutes=1):
     while True:
         try:
             # Fetch balances and prices for all exchanges
             balances = [get_balance(ex) for ex in exchanges]
-            prices = [ex.fetch_ticker(symbol)['last'] for ex in exchanges]
+            prices = [ex.fetch_ticker(symbols[0])['last'] for ex in exchanges]
 
             # Find the highest and lowest prices
             min_price = min(prices)
@@ -96,8 +92,8 @@ def execute_arbitrage():
                 min_index = prices.index(min_price)
                 max_index = prices.index(max_price)
                 amount_to_buy = balances[min_index] / min_price
-                exchanges[min_index].create_market_buy_order(symbol, amount_to_buy)
-                exchanges[max_index].create_market_sell_order(symbol, amount_to_buy)
+                exchanges[min_index].create_market_buy_order(symbols[0], amount_to_buy)
+                exchanges[max_index].create_market_sell_order(symbols[0], amount_to_buy)
                 logging.info(f"Arbitrage opportunity: Buy on {exchanges[min_index].name}, sell on {exchanges[max_index].name}")
 
             time.sleep(renew_time_minutes * 60)
@@ -108,6 +104,3 @@ def execute_arbitrage():
 
 if __name__ == '__main__':
     execute_arbitrage()
-
-
-
